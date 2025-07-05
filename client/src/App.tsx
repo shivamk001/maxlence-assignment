@@ -6,6 +6,7 @@ import Signin from './pages/SignIn'
 import ResetPassword from './pages/ResetPassword'
 import Home from './pages/Home'
 import ForgetPassword from './pages/ForgetPassword'
+// import { Toaster } from "@/components/ui/sonner"
 // import { NavigationBar } from './components/Navbar'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
 
   return (
     <>
+    
       {/* <NavigationBar/> */}
       <Routes>
         <Route path="/" element={<Home />} />
@@ -21,6 +23,7 @@ function App() {
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
       </Routes>
+      {/* <Toaster /> */}
     </>
 
   )
