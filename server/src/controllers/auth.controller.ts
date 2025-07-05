@@ -1,0 +1,124 @@
+import { NextFunction, Request, Response } from "express";
+
+import { AuthService } from "../services/authService";
+import { CustomError } from "../utils/error";
+import { validationResult } from "express-validator";
+import { Password } from "../utils/password";
+
+export class AuthController{
+    public static async signin(req: Request, res: Response, next: NextFunction){
+        try{
+            const error=validationResult(req);
+
+            if(!error.isEmpty()){
+                throw new CustomError(400, error.array().join(' '));
+            }
+
+            const { email, password } = req.body;
+
+            let result = await AuthService.signinService(email, password);
+
+            if(result){
+                // store it on session object
+                req.session={
+                    jwt: result.jwt
+                }
+                
+                res.status(200);
+            }
+        }catch(err){
+            next(err);
+        } 
+    }
+
+    public static async signup(req: Request, res: Response, next: NextFunction){
+        try{
+            const error=validationResult(req);
+
+            if(!error.isEmpty()){
+                throw new CustomError(400, error.array().join(' '));
+            }
+
+            const { email, userName, password }=req.body;
+
+            let result = await AuthService.signupService(email, userName, password);
+
+            if(result){
+                req.session={
+                    jwt: result.jwt
+                };
+                res.status(201);
+                return;
+            }
+            else{
+                res.status(401);
+            }
+        }
+        catch(err){
+            next(err);
+        }
+    }
+
+    public static async verifyEmail(req: Request, res: Response, next: NextFunction){
+        try{
+            let { token } = req.query;
+
+            let result = await AuthService.verifyEmail(token as string);
+
+            if(result){
+                res.send('EMail Verified');
+                return;
+            }
+            res.status(401).send('Unauthorized User');
+        }
+        catch(err){
+            next(err);
+        }
+    }
+
+    public static async sendResetPasswordMail(req: Request, res: Response, next: NextFunction){
+        try{
+            let { email } = req.body;
+
+            let result = await AuthService.sendResetPasswordMail(email);
+
+            if(result){
+                res.send('EMail Verified');
+                return;
+            }
+            res.status(401).send('Unauthorized User');
+        }
+        catch(err){
+            next(err);
+        }
+
+    }
+
+    public static async resetPassword(req: Request, res: Response, next: NextFunction){
+        try{
+            let { token } = req.query;
+            let { password } = req.body;
+
+            let result = await AuthService.resetPassword(token as string, password);
+
+            if(result){
+                res.send('EMail Verified');
+                return;
+            }
+            res.status(401).send('Unauthorized User');
+        }
+        catch(err){
+            next(err);
+        }
+
+    }
+
+    public static async signout(req: Request, res: Response){
+        req.session=null;
+        res.send({});
+    }
+
+    public static async currentUser(req: Request, res: Response){
+        res.send(req.currentUser);
+    }
+}
