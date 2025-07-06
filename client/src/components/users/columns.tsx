@@ -1,17 +1,17 @@
 
 
 import type { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
+// import { MoreHorizontal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+// import {
+//     DropdownMenu,
+//     DropdownMenuContent,
+//     DropdownMenuItem,
+//     DropdownMenuLabel,
+//     DropdownMenuSeparator,
+//     DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu"
 import { ArrowUpDown } from "lucide-react";
 import { Trash2 } from 'lucide-react';
 
@@ -27,7 +27,7 @@ export type UsersType = {
 
 export const columns: ColumnDef<UsersType>[] = [
     {
-        accessorKey: "username",
+        accessorKey: "userName",
         header: "Username"
     },
     {
@@ -49,15 +49,19 @@ export const columns: ColumnDef<UsersType>[] = [
         }
     },
     {
-        id: "delete",
-        cell: ({ row }) => {
-        const user = row.original
-    
-        return (
-            <Button onClick={() => alert('Delete clicked')}>
-                <Trash2 className="w-5 h-5 text-red-500 hover:text-red-700" />
-            </Button>
-        )
-        },
+        accessorKey: "emailVerified",
+        header: "Email Verified",
     },
+    // {
+    //     id: "delete",
+    //     cell: ({ row }) => {
+    //     const user = row.original
+    
+    //     return (
+    //         <Button onClick={() => alert('Delete clicked')}>
+    //             <Trash2 className="w-5 h-5 text-red-500 hover:text-red-700" />
+    //         </Button>
+    //     )
+    //     },
+    // },
 ];

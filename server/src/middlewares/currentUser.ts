@@ -31,7 +31,9 @@ const currentUser = (req: Request, res: Response, next: NextFunction) =>{
                     // generate access token
                     const newToken=jwt.sign({
                         id: user.id,
-                        email: user.email
+                        email: user.email,
+                        role: user.role,
+                        userName: user.userName
                     }, process.env.JWT_KEY!, {expiresIn: '15m'});
 
                     req.session={

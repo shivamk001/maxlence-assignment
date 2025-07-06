@@ -2,6 +2,7 @@
 import express from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import currentUser from '../middlewares/currentUser';
+import isAdminUser from '../middlewares/isAdminUser';
 import upload from '../middlewares/upload';
 import { body, query } from 'express-validator';
 
@@ -57,6 +58,8 @@ router.post('/auth/reset', [
 router.get('/auth/signout', AuthController.signout);
 
 router.get('/auth/currentuser', currentUser, AuthController.currentUser);
+
+router.get('/auth/users/all', currentUser, isAdminUser, AuthController.getAllUsers);
 
 export default router;
 

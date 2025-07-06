@@ -31,12 +31,16 @@ export class AuthService{
         // generate JWT
         const userJWT=jwt.sign({
             id: user.id,
-            email: user.email
+            email: user.email,
+            role: user.role,
+            userName: user.userName
         }, process.env.JWT_KEY!, {expiresIn: '15m'});
 
         const refreshJWT=jwt.sign({
             id: user.id,
             email: user.email,
+            role: user.role,
+            userName: user.userName
         }, process.env.JWT_KEY!, {expiresIn: '7d'});
 
         return {
@@ -67,12 +71,16 @@ export class AuthService{
         const userJWT=jwt.sign({
             id: existingUser.id,
             email: existingUser.email,
+            role: existingUser.role,
+            userName: existingUser.userName 
         }, process.env.JWT_KEY!, {expiresIn: '15m'});
 
         // TODO: generate refresh token
         const refreshJWT=jwt.sign({
             id: existingUser.id,
             email: existingUser.email,
+            role: existingUser.role,
+            userName: existingUser.userName 
         }, process.env.JWT_KEY!, {expiresIn: '7d'});
 
         return {
@@ -102,7 +110,7 @@ export class AuthService{
         const existingUser = await User.findOne({where: { email }});
 
         if(!existingUser){
-            throw new CustomError(401, 'User does not exist.'); 
+            throw new CustomError(404, 'User does not exist.'); 
         }
 
         // send password reset email
@@ -169,5 +177,14 @@ export class AuthService{
         catch(err){
             throw new Error('Verification Email failed');
         }
+    }
+
+    public static async getAllUsers(): Promise<any[]>{
+        let User = getUserModel(Db.Sequalize);
+        const users = await User.findAll({
+            attributes: {exclude: ['password', 'createdAt', 'updatedAt']}
+        });
+        
+        return users.map(user => user.toJSON());
     }
 }

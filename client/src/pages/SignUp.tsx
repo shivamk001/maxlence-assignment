@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Button } from "@/components/ui/button"
 import {
     Card,
     // CardAction,
     CardContent,
     CardDescription,
+    CardFooter,
     // CardFooter,
     CardHeader,
     CardTitle,
@@ -175,12 +176,10 @@ export function SignUp() {
                     </div>
                     </form>
                 </CardContent>
-                {/* <CardFooter className="flex-col gap-2">
-                    <Button type="submit" className="w-full">
-                    Create Account
-                    </Button>
-                </CardFooter> */}
-                </Card>
+                <CardFooter className="flex-col">
+                    <Button variant="link"><Link to='/signin'>Sign In</Link></Button>
+                </CardFooter>
+            </Card>
             </div>}
             <ToastContainer />
         </>

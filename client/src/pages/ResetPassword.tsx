@@ -13,14 +13,15 @@ import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router";
+import { ToastContainer, toast } from 'react-toastify';
 
 export function ResetPassword() {
     const {register, handleSubmit} = useForm();
     const navigate = useNavigate();
     const [isLoading, setisLoading] = useState(false);
-    const [userJson, setuserJson] = useState<{email: string, id: string}>({});
+    const [userJson, setuserJson] = useState<{email: string, id: string} | null>(null);
 
     const apiUrl = import.meta.env.VITE_API_URL;
     console.log('API URL:', apiUrl);
@@ -31,9 +32,10 @@ export function ResetPassword() {
 
     useEffect(()=>{
 
+        // @ts-ignore
         // const decodedStr = Buffer.from(token, 'base64').toString('utf-8');
         console.log('token:', atob(token));
-
+        // @ts-ignore
         let json=JSON.parse(atob(token));
         setuserJson(json);
     }, []);
@@ -47,17 +49,32 @@ export function ResetPassword() {
         if(password==confirmpassword){
             let res = await axios.post(`${apiUrl}/auth/reset?token=${token}`, {
                 password
-            })
-            debugger;
+            }, {
+                validateStatus: function (status) {
+                return status >= 200 && status < 300 || status >= 400 && status < 500; // Accept all responses including 400
+            }
+        });
 
-            if(res){
+            if(res.status==200){
+                debugger;
                 setisLoading(false);
+                toast.success("Password Reset Successfully!");
                 navigate('/signin');
             }
-        };
+            else{
+                toast.error(res.data);
+                setisLoading(false);
+                navigate('/resetpassword');
+            }
+        }
+        else{
+            setisLoading(false);
+            toast.error(`Passwords and Confirm Passwords don't match`);
+        }
     }
 
-    return isLoading ?
+    return (<>
+        {isLoading ?
             <div className="w-full h-full flex flex-row justify-center items-center">
                     <Loader2 className="h-6 w-6 animate-spin text-white" />
             </div>
@@ -67,7 +84,7 @@ export function ResetPassword() {
             <CardHeader>
                 <CardTitle>Reset Password</CardTitle>
                 <CardDescription>
-                Enter New Password to Reset Password
+                Enter New Password
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -81,7 +98,7 @@ export function ResetPassword() {
                             id="email"
                             type="email"
                             // placeholder="m@example.com"
-                            defaultValue={userJson!.email}
+                            defaultValue={userJson?userJson.email:''}
                             required
                             readOnly
                         />
@@ -120,7 +137,9 @@ export function ResetPassword() {
                 </Button>
             </CardFooter> */}
             </Card>
-        /</div>
+        </div>}
+        <ToastContainer />
+    </>)
 }
 
 export default ResetPassword;

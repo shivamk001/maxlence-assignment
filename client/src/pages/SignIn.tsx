@@ -43,16 +43,16 @@ export function SignIn() {
 
         if(res.status==200){
             setisLoading(false);
-            navigate('/');
             toast.success("Login Successful!", {
                 position: "top-right",
             });
+            navigate('/');
         }
         else{
             console.log('Res:', res);
             setisLoading(false);
-            navigate('/signin');
             toast.error(res.data);
+            navigate('/signin');
         }
     }
 
@@ -89,12 +89,9 @@ export function SignIn() {
                         <div className="grid gap-2">
                         <div className="flex items-center">
                             <Label htmlFor="password">Password</Label>
-                            <a
-                            href="#"
-                            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                            >
-                            Forgot your password?
-                            </a>
+                            <Button variant="link"className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                                <Link to='/forgetpassword'>Forgot Your Password?</Link>
+                            </Button>
                         </div>
                         <Input 
                             {...register("password")}

@@ -3,7 +3,7 @@ import {
     Card,
     CardContent,
     CardDescription,
-    // CardFooter,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -13,7 +13,8 @@ import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { toast, ToastContainer } from "react-toastify";
 
 export function ForgetPassword() {
     const {register, handleSubmit} = useForm();
@@ -32,16 +33,31 @@ export function ForgetPassword() {
                 email,
                 userName,
                 password
-            })
+            },{
+                validateStatus: function (status) {
+                return status >= 200 && status < 300 || status >= 400 && status < 500; // Accept all responses including 400
+            }
+        });
 
             if(res.status==200){
                 setisLoading(false);
-                
+                toast.success("Reset Password EMail Sent Successfully!", {
+                    position: "top-right",
+                });
+                navigate('/signin');
+            }
+            else{
+                toast.error(res.data, {
+                    position: "top-right",
+                });
+                setisLoading(false);
+                navigate('/forgetpassword');
             }
         };
     }
 
-    return isLoading ?
+    return (<>
+            {isLoading ?
             <div className="w-full h-full flex flex-row justify-center items-center">
                     <Loader2 className="h-6 w-6 animate-spin text-white" />
             </div>
@@ -75,13 +91,14 @@ export function ForgetPassword() {
                     </div>
                 </CardContent>
             </form>
-            {/* <CardFooter className="flex-col gap-2">
-                    <Button type="submit" className="w-full">
-                        Send Reset Password Link to Email
-                    </Button>
-            </CardFooter> */}
+                <CardFooter className="flex-col">
+                    <Button variant="link"><Link to='/signin'>Sign In</Link></Button>
+                </CardFooter>
             </Card>      
-        </div>
+        </div>}
+        <ToastContainer />  
+    </>)
+
 }
 
 export default ForgetPassword;

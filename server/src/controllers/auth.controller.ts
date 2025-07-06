@@ -136,4 +136,19 @@ export class AuthController{
     public static async currentUser(req: Request, res: Response){
         res.send(req.currentUser);
     }
+
+    public static async getAllUsers(req: Request, res: Response, next: NextFunction){
+        try{
+            let result = await AuthService.getAllUsers();
+
+            if(result){
+                res.send(result);
+                return;
+            }
+            res.status(404).send('No Users Found');
+        }
+        catch(err){
+            next(err);
+        }
+    }
 }
