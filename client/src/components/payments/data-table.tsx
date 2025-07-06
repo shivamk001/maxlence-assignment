@@ -55,7 +55,7 @@ export function DataTable<TData, TValue>({
                 }
                 className="max-w-sm"
                 />
-                <Button variant={"outline"} className="bg-black ml-4">Add Entry</Button>
+                {/* <Button variant={"outline"} className="bg-black ml-4">Add Entry</Button>     */}
             </div>
             <div className="rounded-md border text-white">
                 <Table>

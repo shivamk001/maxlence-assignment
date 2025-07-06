@@ -10,37 +10,64 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axios from "axios";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { useSearchParams } from "react-router";
 
 export function ResetPassword() {
     const {register, handleSubmit} = useForm();
     const navigate = useNavigate();
+    const [isLoading, setisLoading] = useState(false);
+    const [userJson, setuserJson] = useState<{email: string, id: string}>({});
+
+    const apiUrl = import.meta.env.VITE_API_URL;
+    console.log('API URL:', apiUrl);
+
+    const [searchParams] = useSearchParams();
+    let token = searchParams.get('token');
+
+
+    useEffect(()=>{
+
+        // const decodedStr = Buffer.from(token, 'base64').toString('utf-8');
+        console.log('token:', atob(token));
+
+        let json=JSON.parse(atob(token));
+        setuserJson(json);
+    }, []);
+
 
     const submitRequest = async (data: any) =>{
         console.log(data);
-        let { email, password, userName, confirmpassword} = data;
-
+        setisLoading(true);
+        let { password, confirmpassword} = data;
+        debugger;
         if(password==confirmpassword){
-            let res = await axios.post('http://localhost:3000/auth/signup', {
-                email,
-                userName,
+            let res = await axios.post(`${apiUrl}/auth/reset?token=${token}`, {
                 password
             })
+            debugger;
 
             if(res){
-                navigate('/');
+                setisLoading(false);
+                navigate('/signin');
             }
         };
     }
 
-    return (
+    return isLoading ?
+            <div className="w-full h-full flex flex-row justify-center items-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+        :
         <div className="w-full h-full flex flex-row justify-center items-center">
             <Card className="w-full max-w-sm">
             <CardHeader>
                 <CardTitle>Reset Password</CardTitle>
                 <CardDescription>
-                Enter your details below to create your account
+                Enter New Password to Reset Password
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -50,25 +77,34 @@ export function ResetPassword() {
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
-                            {...register("email")}
+                            // {...register("email")}
                             id="email"
                             type="email"
-                            placeholder="m@example.com"
+                            // placeholder="m@example.com"
+                            defaultValue={userJson!.email}
                             required
-                            disabled
+                            readOnly
                         />
                     </div>
                     <div className="grid gap-2">
                         <div className="flex items-center">
                             <Label htmlFor="password">Password</Label>
                         </div>
-                        <Input id="password" type="password" required />
+                        <Input 
+                            {...register("password")}
+                            id="password" 
+                            type="password" 
+                            required />
                     </div>
                     <div className="grid gap-2">
                         <div className="flex items-center">
                             <Label htmlFor="password">Confirm Password</Label>
                         </div>
-                        <Input id="confirmpassword" type="password" required />
+                        <Input 
+                            {...register("confirmpassword")}
+                            id="confirmpassword" 
+                            type="password" 
+                            required />
                     </div>
                     <div className="flex-col gap-2">
                         <Button type="submit" className="w-full">
@@ -85,7 +121,6 @@ export function ResetPassword() {
             </CardFooter> */}
             </Card>
         /</div>
-    )
 }
 
 export default ResetPassword;

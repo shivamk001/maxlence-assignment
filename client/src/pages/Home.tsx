@@ -2,16 +2,48 @@ import { DataTable } from "../components/payments/data-table";
 import { columns } from "../components/payments/columns";
 import type { Payment } from "../components/payments/columns";
 import { NavBar } from "@/components/Navbar";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router";
+
+type CurrenUser = {
+    id: string
+    email: string
+}
 
 const Home = () => {
     // TODO: add entry functionality
-    return (
-        <>
-            <NavBar/>
-            <DataTable columns={columns} data={payments}/>
-        </>
+    const navigate=useNavigate();
+    const [currentUser, setCurrentUser] = useState<CurrenUser | null>(null);
 
-    )
+    const apiUrl = import.meta.env.VITE_API_URL;
+    console.log('API URL:', apiUrl);
+
+        useEffect(() => {
+            axios
+            .get(`${apiUrl}/auth/currentuser`, {
+                withCredentials: true,
+            })
+            .then((resp) => {
+                console.log("CURRENT USER", resp.data)
+                setCurrentUser({
+                email: resp.data.email,
+                id: resp.data.id,
+                })
+            })
+            .catch((err) => {
+                console.error("Error fetching current user:", err)
+                setCurrentUser(null);
+                navigate('/signin');
+            })
+        }, []);
+        return (
+            <>
+                <NavBar/>
+                <DataTable columns={columns} data={payments}/>
+            </>
+
+        )
 }
 
 export const payments: Payment[] = [

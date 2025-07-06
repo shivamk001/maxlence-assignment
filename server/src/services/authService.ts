@@ -5,6 +5,7 @@ import { getUserModel, Role } from "../models/user";
 import { CustomError } from "../utils/error";
 import { mailer } from "../utils/mailer";
 import { Password } from '../utils/password';
+import { Env } from '../utils/env';
 
 export class AuthService{
 
@@ -100,8 +101,8 @@ export class AuthService{
         let User = getUserModel(Db.Sequalize);
         const existingUser = await User.findOne({where: { email }});
 
-        if(existingUser){
-            throw new CustomError(401, 'Email in use'); 
+        if(!existingUser){
+            throw new CustomError(401, 'User does not exist.'); 
         }
 
         // send password reset email
@@ -109,9 +110,9 @@ export class AuthService{
 
         let payload = Buffer.from(str, 'utf-8').toString('base64');
 
-        let baseUrl = process.env.BASE_URL;
+        let clientUrl = Env.get('CLIENT_URL');
 
-        let passwordResetLink = `${baseUrl}/reset?token=${payload}`;
+        let passwordResetLink = `${clientUrl}/resetpassword?token=${payload}`;
 
         let resetPasswordText = `
             Hi ${existingUser!.userName},
@@ -150,9 +151,9 @@ export class AuthService{
 
             let payload = Buffer.from(str, 'utf-8').toString('base64');
 
-            let baseUrl = process.env.BASE_URL;
+            let baseUrl = Env.get('BASE_URL');
 
-            let emailVerificationLink = `${baseUrl}/verify?token=${payload}`;
+            let emailVerificationLink = `${baseUrl}/auth/verify?token=${payload}`;
 
             let verificationText = `
                 Hi ${userName},

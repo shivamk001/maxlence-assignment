@@ -2,13 +2,15 @@
 import express from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import currentUser from '../middlewares/currentUser';
-import { body } from 'express-validator';
+import upload from '../middlewares/upload';
+import { body, query } from 'express-validator';
 
 const router = express.Router();
 
 // TODO: USER EXPRESS VALIDATOR
 
 router.post('/auth/signup', 
+        upload.single('file'),
         [
         body('email')
             .isEmail()
@@ -43,7 +45,14 @@ router.get('/auth/verify', AuthController.verifyEmail);
 router.post('/auth/reset-mail', AuthController.sendResetPasswordMail);
 
 // reset password
-router.post('/auth/reset', AuthController.resetPassword);
+router.post('/auth/reset', [
+        body('password')
+            .trim()
+            .notEmpty()
+            .withMessage('You must supply a password'),
+        query('token').isString().notEmpty().withMessage('Token is required in query')
+    ],
+    AuthController.resetPassword);
 
 router.get('/auth/signout', AuthController.signout);
 

@@ -17,13 +17,18 @@ import { useForm } from "react-hook-form";
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { useEffect, useState } from 'react';
 import { NavBar } from '@/components/Navbar';
+import { Loader2 } from 'lucide-react';
 
 const Profile = () => {
     const { register, handleSubmit, watch } = useForm();
     const navigate = useNavigate();
     const [profileLink, setProfileLink] = useState('https://cdn-icons-png.flaticon.com/128/12225/12225881.png');
     const imageFile = watch('profile');
+    const [isLoading, setisLoading] = useState(false);
     console.log(imageFile && imageFile.length > 0 ? imageFile[0].name : 'abc');
+
+    const apiUrl = import.meta.env.VITE_API_URL;
+    console.log('API URL:', apiUrl);
 
     useEffect(() => {
         if (imageFile && imageFile.length > 0) {
@@ -31,10 +36,14 @@ const Profile = () => {
             const objectUrl = URL.createObjectURL(file);
             setProfileLink(objectUrl);
         }
+
+        // 
+
     }, [imageFile])
 
     const submitRequest = async (data: any) => {
         console.log(data);
+        setisLoading(true);
         let { email, password, userName, confirmpassword } = data;
         console.log(password, confirmpassword);
         if (password == confirmpassword) {
@@ -45,7 +54,7 @@ const Profile = () => {
             formData.append('password', password);
             formData.append('image', data.file[0]);
 
-            let res = await axios.post('http://localhost:3000/auth/signup', formData, {
+            let res = await axios.post(`${apiUrl}/auth/currentuser`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -54,6 +63,7 @@ const Profile = () => {
             // https://cdn-icons-png.flaticon.com/128/12225/12225881.png
 
             if (res) {
+                setisLoading(false);
                 navigate('/');
             }
         }
@@ -73,6 +83,11 @@ const Profile = () => {
     return (
         <>
             <NavBar/>
+            { isLoading ?
+            <div className="w-full h-full flex flex-row justify-center items-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+            :
             <div className="w-full h-full flex flex-row justify-center items-center">
                 <Card className="w-full max-w-2xl">
                     <CardHeader className='text-center'>
@@ -178,6 +193,7 @@ const Profile = () => {
                 </CardFooter> */}
                 </Card>
             </div>
+        }
         </>
 
     )

@@ -19,12 +19,13 @@ export class AuthController{
 
             if(result){
                 // store it on session object
+                // TODO: both not shown
                 req.session={
                     jwt: result.jwt,
-                    rjwt: result.rjwt
+                    // rjwt: result.rjwt
                 }
                 
-                res.status(200);
+                res.status(200).send('Login Successful');
             }
         }catch(err){
             next(err);
@@ -62,6 +63,7 @@ export class AuthController{
 
     public static async verifyEmail(req: Request, res: Response, next: NextFunction){
         try{
+            const error=validationResult(req);
             let { token } = req.query;
 
             let result = await AuthService.verifyEmail(token as string);
@@ -79,6 +81,12 @@ export class AuthController{
 
     public static async sendResetPasswordMail(req: Request, res: Response, next: NextFunction){
         try{
+            const error=validationResult(req);
+
+            if(!error.isEmpty()){
+                throw new CustomError(400, error.array().join(' '));
+            }
+
             let { email } = req.body;
 
             let result = await AuthService.sendResetPasswordMail(email);
@@ -97,13 +105,19 @@ export class AuthController{
 
     public static async resetPassword(req: Request, res: Response, next: NextFunction){
         try{
+            const error=validationResult(req);
+
+            if(!error.isEmpty()){
+                throw new CustomError(400, error.array().join(' '));
+            }
+
             let { token } = req.query;
             let { password } = req.body;
 
             let result = await AuthService.resetPassword(token as string, password);
 
             if(result){
-                res.send('EMail Verified');
+                res.send('Password Reset');
                 return;
             }
             res.status(401).send('Unauthorized User');

@@ -11,31 +11,57 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axios from "axios";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { ToastContainer, toast } from 'react-toastify';
 
 export function SignIn() {
     const {register, handleSubmit} = useForm();
     const navigate = useNavigate();
+    const [isLoading, setisLoading] = useState(false);
 
     const submitRequest = async (data: any) =>{
         console.log(data);
-        let { email, password, userName, confirmpassword} = data;
+        let { email, password} = data;
+        setisLoading(true);
+        const apiUrl = import.meta.env.VITE_API_URL;
+        console.log('API URL:', apiUrl);
 
-        if(password==confirmpassword){
-            let res = await axios.post('http://localhost:3000/auth/signup', {
-                email,
-                userName,
-                password
-            })
 
-            if(res){
-                navigate('/');
-            }
-        };
+        let res = await axios.post(`${apiUrl}/auth/signin`, {
+            email,
+            password
+        },{
+            withCredentials: true,
+            validateStatus: function (status) {
+                // Accept all responses including 401
+                return status >= 200 && status < 300 || status === 401;
+            },
+        });
+
+        if(res.status==200){
+            setisLoading(false);
+            navigate('/');
+            toast.success("Login Successful!", {
+                position: "top-right",
+            });
+        }
+        else{
+            console.log('Res:', res);
+            setisLoading(false);
+            navigate('/signin');
+            toast.error(res.data);
+        }
     }
 
-    return (
+    return (<>
+        {isLoading ?
+            <div className="w-full h-full flex flex-row justify-center items-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+        :
         <div className="w-full h-full flex flex-row justify-center items-center">
             <Card className="w-full max-w-sm">
             <CardHeader>
@@ -44,7 +70,7 @@ export function SignIn() {
                 Enter your email below to login to your account
                 </CardDescription>
                 <CardAction>
-                <Button variant="link">Sign Up</Button>
+                <Button variant="link"><Link to='/signup'>Sign Up</Link></Button>
                 </CardAction>
             </CardHeader>
             <CardContent>
@@ -93,8 +119,9 @@ export function SignIn() {
                 </Button> */}
             </CardFooter>
             </Card>
-        </div>
-    )
+        </div>}
+        <ToastContainer />
+        </>)
 }
 
 export default SignIn;

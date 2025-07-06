@@ -10,31 +10,42 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axios from "axios";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 export function ForgetPassword() {
     const {register, handleSubmit} = useForm();
     const navigate = useNavigate();
+    const [isLoading, setisLoading] = useState(false);
 
     const submitRequest = async (data: any) =>{
         console.log(data);
         let { email, password, userName, confirmpassword} = data;
+        setisLoading(true);
+        const apiUrl = import.meta.env.VITE_API_URL;
+        console.log('API URL:', apiUrl);
 
         if(password==confirmpassword){
-            let res = await axios.post('http://localhost:3000/auth/signup', {
+            let res = await axios.post(`${apiUrl}/auth/reset-mail`, {
                 email,
                 userName,
                 password
             })
 
-            if(res){
-                navigate('/');
+            if(res.status==200){
+                setisLoading(false);
+                
             }
         };
     }
 
-    return (
+    return isLoading ?
+            <div className="w-full h-full flex flex-row justify-center items-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+        :
         <div className="w-full h-full flex flex-row justify-center items-center">
             <Card className="w-full max-w-sm">
             <CardHeader>
@@ -71,7 +82,6 @@ export function ForgetPassword() {
             </CardFooter> */}
             </Card>      
         </div>
-    )
 }
 
 export default ForgetPassword;

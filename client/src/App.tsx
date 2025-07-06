@@ -7,30 +7,21 @@ import ResetPassword from './pages/ResetPassword'
 import Home from './pages/Home'
 import ForgetPassword from './pages/ForgetPassword'
 import Users from './pages/Users'
-import Profile from './pages/Profile'
-// import { Toaster } from "@/components/ui/sonner"
-// import { NavigationBar } from './components/Navbar'
+import Profile from './pages/Profile';
 
 function App() {
-  // const [count, setCount] = useState(0)
 
   return (
-    <>
-    
-      {/* <NavigationBar/> */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/profile" element={<Profile />} />
       </Routes>
-      {/* <Toaster /> */}
-    </>
-
-  )
+    )
 }
 
 export default App

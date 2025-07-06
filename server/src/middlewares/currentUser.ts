@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken'
 import { CustomError } from "../utils/error";
+import { Env } from "../utils/env";
 
 const currentUser = (req: Request, res: Response, next: NextFunction) =>{
-    console.log('session:', req.session, process.env.JWT_KEY!);
+    let secret=Env.get('JWT_KEY');
+    console.log('session:', req.session, secret);
     
     let {jwt: jwtToken, rjwt: refreshToken} = req.session;
 
@@ -11,14 +13,14 @@ const currentUser = (req: Request, res: Response, next: NextFunction) =>{
         let err = new CustomError(401, 'Unauthorized User');
         next(err);
     }
-    jwt.verify(jwtToken, process.env.JWT_KEY!, (err: any, user: any)=>{
+    jwt.verify(jwtToken, secret, (err: any, user: any)=>{
         if(err && err.name=='TokenExpireError'){
             if(!refreshToken){
                 return res.sendStatus(403);
             }
             
             // verify refresh token
-            jwt.verify(refreshToken, process.env.JWT_KEY!, (err: any, user: any)=>{
+            jwt.verify(refreshToken, secret, (err: any, user: any)=>{
                 if(err){
                     return res.sendStatus(403);
                 }
