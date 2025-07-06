@@ -48,11 +48,11 @@ export class AuthController{
                     jwt: result.jwt,
                     rjwt: result.rjwt
                 };
-                res.status(201);
+                res.status(201).send('Signup Successful');
                 return;
             }
             else{
-                res.status(401);
+                res.status(401).send('Bad Request');
             }
         }
         catch(err){

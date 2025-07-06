@@ -1,12 +1,16 @@
 import nodemailer from 'nodemailer';
+import { Env } from './env';
+import logger from './logger';
 
 export const mailer = (email: string, text: string, subject: string) =>{
     try{
+        let user=Env.get('MAILER_USER');
+        let pass=Env.get('MAILER_PASS');
         let transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: '',
-                pass: ''
+                user: user,
+                pass: pass
             }
         });
     
@@ -19,9 +23,9 @@ export const mailer = (email: string, text: string, subject: string) =>{
         
         transporter.sendMail(mailOptions, function(error, info){
             if (error) {
-                console.log(error);
+                logger.info(error);
             } else {
-                console.log('Email sent: ' + info.response);
+                logger.info('Email sent: ' + info.response);
             }
         });
     }

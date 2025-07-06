@@ -1,6 +1,6 @@
 // get all problems
 import express, { Request, Response, NextFunction } from 'express';
-import { ProblemsController } from '../controllers/plants.controller';
+import { PaymentsController } from '../controllers/payments.controller';
 import logger from '../utils/logger';
 
 const router = express.Router();
@@ -10,11 +10,8 @@ router.use((req: Request, res: Response, next: NextFunction)=>{
     next();
 })
 
-router.get('/dsaapi/problems/all', ProblemsController.getAllProblems);
+router.get('/payments/all', PaymentsController.getAllPayments);
 
-router.get('/dsaapi/problems/:id', ProblemsController.getProblem);
-
-// using query
-router.get('/dsaapi/problems', ProblemsController.getProblemByQuery);
+router.get('/payments/:id', PaymentsController.getPayment);
 
 export default router;

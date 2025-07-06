@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-import User, { Role } from "../models/user";
+import { Db } from '../db';
+import { getUserModel, Role } from "../models/user";
 import { CustomError } from "../utils/error";
 import { mailer } from "../utils/mailer";
 import { Password } from '../utils/password';
@@ -8,41 +9,43 @@ import { Password } from '../utils/password';
 export class AuthService{
 
     public static async signupService(email: string, userName: string, password: string): Promise<{jwt: string, rjwt: string}>{
-            const existingUser = await User.findOne({where: { email }});
-    
-            if(existingUser){
-                throw new CustomError(401, 'Email in use'); 
-            }
-    
-            let profileImage ='';
+        let User = getUserModel(Db.Sequalize);
+        const existingUser = await User.findOne({where: { email }});
 
-            let hash=await Password.hash(password);
-    
-            // save the user
-            const user=User.build({email, userName, password: hash, role: Role.User, profileImage});
-            await user.save(); 
-    
-            // verifyEmail
-            this.sendVerificationEmail(user.id, email, userName);
-    
-            // generate JWT
-            const userJWT=jwt.sign({
-                id: user.id,
-                email: user.email
-            }, process.env.JWT_KEY!, {expiresIn: '15m'});
+        if(existingUser){
+            throw new CustomError(401, 'Email in use'); 
+        }
 
-            const refreshJWT=jwt.sign({
-                id: user.id,
-                email: user.email,
-            }, process.env.JWT_KEY!, {expiresIn: '7d'});
+        let profileImage ='';
 
-            return {
-                jwt: userJWT,
-                rjwt: refreshJWT
-            }
+        let hash=await Password.hash(password);
+
+        // save the user
+        const user=User.build({email, userName, password: hash, role: Role.User, profileImage});
+        await user.save(); 
+
+        // verifyEmail
+        this.sendVerificationEmail(user.id, email, userName);
+
+        // generate JWT
+        const userJWT=jwt.sign({
+            id: user.id,
+            email: user.email
+        }, process.env.JWT_KEY!, {expiresIn: '15m'});
+
+        const refreshJWT=jwt.sign({
+            id: user.id,
+            email: user.email,
+        }, process.env.JWT_KEY!, {expiresIn: '7d'});
+
+        return {
+            jwt: userJWT,
+            rjwt: refreshJWT
+        }
     }
 
     public static async signinService(email: string, password: string): Promise<{jwt: string, rjwt: string}>{
+        let User = getUserModel(Db.Sequalize);
         const existingUser = await User.findOne({where: { email }});
         
         if(!existingUser){
@@ -78,6 +81,7 @@ export class AuthService{
     }
 
     public static async verifyEmail(token: string): Promise<boolean>{
+        let User = getUserModel(Db.Sequalize);
         let json = JSON.parse(Buffer.from(token as string, 'base64').toString('utf-8'));
 
         let { id, email, userName } = json;
@@ -93,6 +97,7 @@ export class AuthService{
     }
 
     public static async sendResetPasswordMail(email: string): Promise<boolean>{
+        let User = getUserModel(Db.Sequalize);
         const existingUser = await User.findOne({where: { email }});
 
         if(existingUser){
@@ -123,6 +128,7 @@ export class AuthService{
     }
 
     public static async resetPassword(token: string, password: string): Promise<boolean>{
+        let User = getUserModel(Db.Sequalize);
         let json = JSON.parse(Buffer.from(token as string, 'base64').toString('utf-8'));
 
         let { id, email, userName } = json;
@@ -152,7 +158,7 @@ export class AuthService{
                 Hi ${userName},
 
                 Please click this link to verify your email
-                ${emailVerificationLink}
+                <a href=${emailVerificationLink}>Link</a>
             `;
 
             let subject = 'Email Verification'

@@ -2,18 +2,52 @@
 import express from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import currentUser from '../middlewares/currentUser';
+import { body } from 'express-validator';
 
 const router = express.Router();
 
 // TODO: USER EXPRESS VALIDATOR
 
-router.post('/dsaapi/auth/signup', AuthController.signup);
+router.post('/auth/signup', 
+        [
+        body('email')
+            .isEmail()
+            .withMessage('EMail must be valid'),
+        body('password')
+            .trim()
+            .notEmpty()
+            .withMessage('You must supply a password'),
+        body('userName')
+            .trim()
+            .notEmpty()
+            .withMessage('You must supply a userName')
+    ],
+    AuthController.signup);
 
-router.post('/dsaapi/auth/signin', AuthController.signin);
+router.post('/auth/signin', 
+        [
+        body('email')
+            .isEmail()
+            .withMessage('EMail must be valid'),
+        body('password')
+            .trim()
+            .notEmpty()
+            .withMessage('You must supply a password')
+    ],
+    AuthController.signin);
 
-router.get('/dsaapi/auth/signout', AuthController.signout);
+// verify email
+router.get('/auth/verify', AuthController.verifyEmail);
 
-router.get('/dsaapi/auth/currentuser', currentUser, AuthController.currentUser);
+// send reset password mail
+router.post('/auth/reset-mail', AuthController.sendResetPasswordMail);
+
+// reset password
+router.post('/auth/reset', AuthController.resetPassword);
+
+router.get('/auth/signout', AuthController.signout);
+
+router.get('/auth/currentuser', currentUser, AuthController.currentUser);
 
 export default router;
 

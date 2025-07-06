@@ -3,16 +3,18 @@ import bodyParser from "body-parser";
 import cookieSession from 'cookie-session';
 import cors from 'cors';
 import AuthRouter from "./routes/auth";
-import ProblemsRouter from './routes/problem';
-import UserRouter from './routes/user';
+import PaymentsRouter from './routes/payments';
 import logger from "./utils/logger";
 import { Env } from "./utils/env";
 import errorHandlingMiddleware from "./middlewares/errorHandler";
 
 const app = express();
 
+// const origin=Env.get('ORIGIN');
+// logger.info('ORIGIN:', origin);
+// allow from this frontend only
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'http://localhost:5173',
     credentials: true,
 }));
 
@@ -29,15 +31,13 @@ app.use((req: Request, res: Response, next: NextFunction)=>{
     next();
 })
 
-app.get('/dsaapi/uptime', (req: Request, res: Response)=>{
-    res.send('Up');
+app.get('/uptime', (req: Request, res: Response)=>{
+    res.send('Up and running');
 })
 
 app.use(AuthRouter);
 
-app.use(ProblemsRouter);
-
-app.use(UserRouter);
+app.use(PaymentsRouter);
 
 app.use(errorHandlingMiddleware);
 

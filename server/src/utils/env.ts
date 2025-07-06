@@ -5,7 +5,7 @@ import { CustomError } from './error';
 
 export class Env{
     public static async init(){
-        let envPath = path.join(__dirname, '../../env/prod.env');
+        let envPath = process.env.ENV_PATH ?? path.join(__dirname, '../../env/prod.env')
         logger.info(`ENVPATH: ${envPath}`);
 
         const result = dotenv.config({ path: envPath });
