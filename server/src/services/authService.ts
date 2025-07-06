@@ -7,7 +7,7 @@ import { Password } from '../utils/password';
 
 export class AuthService{
 
-    public static async signupService(email: string, userName: string, password: string): Promise<{jwt: string}>{
+    public static async signupService(email: string, userName: string, password: string): Promise<{jwt: string, rjwt: string}>{
             const existingUser = await User.findOne({where: { email }});
     
             if(existingUser){
@@ -29,14 +29,20 @@ export class AuthService{
             const userJWT=jwt.sign({
                 id: user.id,
                 email: user.email
-            }, process.env.JWT_KEY!);
+            }, process.env.JWT_KEY!, {expiresIn: '15m'});
+
+            const refreshJWT=jwt.sign({
+                id: user.id,
+                email: user.email,
+            }, process.env.JWT_KEY!, {expiresIn: '7d'});
 
             return {
-                jwt: userJWT
+                jwt: userJWT,
+                rjwt: refreshJWT
             }
     }
 
-    public static async signinService(email: string, password: string): Promise<{jwt: string}>{
+    public static async signinService(email: string, password: string): Promise<{jwt: string, rjwt: string}>{
         const existingUser = await User.findOne({where: { email }});
         
         if(!existingUser){
@@ -57,12 +63,17 @@ export class AuthService{
         const userJWT=jwt.sign({
             id: existingUser.id,
             email: existingUser.email,
-        }, process.env.JWT_KEY!);
+        }, process.env.JWT_KEY!, {expiresIn: '15m'});
 
         // TODO: generate refresh token
+        const refreshJWT=jwt.sign({
+            id: existingUser.id,
+            email: existingUser.email,
+        }, process.env.JWT_KEY!, {expiresIn: '7d'});
 
         return {
-                jwt: userJWT
+                jwt: userJWT,
+                rjwt: refreshJWT
         }
     }
 

@@ -14,21 +14,49 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 // import { toast } from "sonner"
 import { useForm } from "react-hook-form";
+import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { useEffect, useState } from 'react';
+
+// type FormData = {
+//     email: string;
+//     username: string;
+//     password: string;
+//     file: FileList; // for file input, use FileList type
+// };
 
 export function SignUp() {
-    const {register, handleSubmit} = useForm();
+    const {register, handleSubmit, watch} = useForm();
     const navigate = useNavigate();
+    const [profileLink, setProfileLink] = useState('https://cdn-icons-png.flaticon.com/128/12225/12225881.png');
+    const imageFile=watch('profile');
+    console.log(imageFile && imageFile.length>0 ? imageFile[0].name : 'abc');
+
+    useEffect(()=>{
+        if(imageFile && imageFile.length>0){
+            const file=imageFile[0];
+            const objectUrl=URL.createObjectURL(file);
+            setProfileLink(objectUrl);
+        }   
+    }, [imageFile])
 
     const submitRequest = async (data: any) =>{
         console.log(data);
         let { email, password, userName, confirmpassword} = data;
         console.log(password, confirmpassword);
         if(password==confirmpassword){
-            let res = await axios.post('http://localhost:3000/auth/signup', {
-                email,
-                userName,
-                password
-            })
+
+            let formData = new FormData();
+            formData.append('email', email);
+            formData.append('userName', userName);
+            formData.append('password', password);
+            formData.append('image', data.file[0]);
+
+            let res = await axios.post('http://localhost:3000/auth/signup', formData, {headers: {
+                "Content-Type": "multipart/form-data",
+                },
+            });
+
+            // https://cdn-icons-png.flaticon.com/128/12225/12225881.png
 
             if(res){
                 navigate('/');
@@ -58,13 +86,29 @@ export function SignUp() {
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit((data)=>submitRequest(data))}>
-                <div className="flex flex-col gap-6">
-                    {/* <div className="flex flex-row justify-center items-center">
-                        <Avatar>
-                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                            <AvatarFallback>CN</AvatarFallback>
+                    <div className="flex flex-col gap-6">
+                    <div className="flex justify-center">
+                        <Avatar className="w-16 h-16">
+                            <AvatarImage
+                                src={profileLink}
+                                alt="@evilrabbit"
+                                className="rounded-full"
+                            />
+                            <AvatarFallback>ER</AvatarFallback>
                         </Avatar>
-                    </div> */}
+                    </div>
+
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="profile">Profile Picture</Label>
+                        <Input
+                            {...register("profile")}
+                            id="profile"
+                            type="file"
+                            accept='image/*'
+                            required
+                        />
+                    </div>
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input

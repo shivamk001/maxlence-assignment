@@ -24,7 +24,7 @@ export type Payment = {
 }
 
 export const columns: ColumnDef<Payment>[] = [
-        {
+    {
         id: "actions",
         cell: ({ row }) => {
         const payment = row.original

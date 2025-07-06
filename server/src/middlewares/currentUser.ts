@@ -5,23 +5,62 @@ import { CustomError } from "../utils/error";
 const currentUser = (req: Request, res: Response, next: NextFunction) =>{
     console.log('session:', req.session, process.env.JWT_KEY!);
     
-    let {jwt: jwtToken} = req.session;
+    let {jwt: jwtToken, rjwt: refreshToken} = req.session;
 
     if(!jwtToken){
         let err = new CustomError(401, 'Unauthorized User');
         next(err);
     }
-    let user = jwt.verify(jwtToken, process.env.JWT_KEY!);
-    console.log('CURRENT USER:', user);
+    jwt.verify(jwtToken, process.env.JWT_KEY!, (err: any, user: any)=>{
+        if(err && err.name=='TokenExpireError'){
+            if(!refreshToken){
+                return res.sendStatus(403);
+            }
+            
+            // verify refresh token
+            jwt.verify(refreshToken, process.env.JWT_KEY!, (err: any, user: any)=>{
+                if(err){
+                    return res.sendStatus(403);
+                }
+
+                // if user exists
+                if(user){
+                    console.log('NEW ACCESS TOKEN CURRENT USER:', user);
+                    // generate access token
+                    const newToken=jwt.sign({
+                        id: user.id,
+                        email: user.email
+                    }, process.env.JWT_KEY!, {expiresIn: '15m'});
+
+                    req.session={
+                        jwt: newToken,
+                        rwjt: refreshToken
+                    }
+
+                    req.currentUser=user;
+                    next();
+                }
+                else {
+                    let err = new CustomError(401, 'Unauthorized User');
+                    next(err);
+                }   
+            })
+        }
+
+        if(user){
+            console.log('CURRENT USER:', user);
+            req.currentUser = user;
+            next();
+        }
+        else {
+            let err = new CustomError(401, 'Unauthorized User');
+            next(err);
+        }   
+    });
+
     
-    if(user){
-        req.currentUser = user;
-        next();
-    }
-    else {
-        let err = new CustomError(401, 'Unauthorized User');
-        next(err);
-    }   
+
+
     
 }
 

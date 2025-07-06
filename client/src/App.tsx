@@ -6,6 +6,8 @@ import Signin from './pages/SignIn'
 import ResetPassword from './pages/ResetPassword'
 import Home from './pages/Home'
 import ForgetPassword from './pages/ForgetPassword'
+import Users from './pages/Users'
+import Profile from './pages/Profile'
 // import { Toaster } from "@/components/ui/sonner"
 // import { NavigationBar } from './components/Navbar'
 
@@ -22,6 +24,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/resetpassword" element={<ResetPassword />} />
+        <Route path="/users" element={<Users />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
       {/* <Toaster /> */}
     </>

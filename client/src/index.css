@@ -128,9 +128,14 @@ body{
   height: 100%;
   width: 100%;
   background-color: black;
+  overflow: auto;
   /* display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
    */
+}
+
+button{
+  cursor: pointer;
 }

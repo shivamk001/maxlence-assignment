@@ -3,7 +3,6 @@ import { NextFunction, Request, Response } from "express";
 import { AuthService } from "../services/authService";
 import { CustomError } from "../utils/error";
 import { validationResult } from "express-validator";
-import { Password } from "../utils/password";
 
 export class AuthController{
     public static async signin(req: Request, res: Response, next: NextFunction){
@@ -21,7 +20,8 @@ export class AuthController{
             if(result){
                 // store it on session object
                 req.session={
-                    jwt: result.jwt
+                    jwt: result.jwt,
+                    rjwt: result.rjwt
                 }
                 
                 res.status(200);
@@ -45,7 +45,8 @@ export class AuthController{
 
             if(result){
                 req.session={
-                    jwt: result.jwt
+                    jwt: result.jwt,
+                    rjwt: result.rjwt
                 };
                 res.status(201);
                 return;
